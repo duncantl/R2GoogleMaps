@@ -1,0 +1,20 @@
+Package: R2GoogleMaps
+Version: 0.2-0
+Title: Create HTML/JavaScript documents to display data using Google Maps.
+Description: This package allows R users to leverage R's programming facilities
+  to create JavaScript and HTML code that will display data in a Web browser on top of Google 
+  Maps.
+Author: Duncan Temple Lang
+Maintainer: Duncan Temple Lang <duncan@r-project.org>
+Imports: methods, RJSONIO
+Depends: XML
+License: BSD
+Note:  This is very different from the RgoogleDocs package.
+  That allows R users to fetch images of maps from Google
+  and to display them in an R graphics device. This 
+  allows us to use R to create code that will display
+  data in a Web browser on top of Google Maps. So this
+  works in the opposite "direction", exporting data from
+  R to Google Maps. The RgoogleDocs package imports
+  data from Google Maps to R. 
+  

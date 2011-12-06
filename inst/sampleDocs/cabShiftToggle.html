@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+    charset=utf-8"/>
+    <title>Google Maps JavaScript API Example: Simple Polyline</title>
+    <script
+    src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA1B7-T_eODjyG26oH5xy41RRGWgUYWZSQzwydeWN06_hWbMEQ6RTxCXs9HZa5E-ISuLW3wiEJttSDZw"
+            type="text/javascript"></script>
+
+    <script type="text/javascript" src="toggle.js"></script>
+    <script type="text/javascript" src="drawPaths.js"></script>
+    <script type="text/javascript">
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map_canvas"));
+        map.setCenter(new GLatLng(37.77618, -122.3988), 11);
+        drawPaths(map);
+      }
+    }
+    </script>
+  </head>
+
+  <body onload="initialize()" onunload="GUnload()">
+
+<p>
+This is an example of hiding and showing Google Map overlays
+with code generated in R where the data start.
+This is the <a href="http://cabspotting.org">cabspotting data</a>.
+</p>
+
+<div id="map_canvas" style="width: 750px; height: 880px; float: left;
+border: solid 2pt red"></div>
+<div style="float: left">
+Toggle the checkboxes to hide/show a shift's path.
+<form>
+  <dl>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[1], this.checked)">Shift 0</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[2], this.checked)">Shift 1</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[3], this.checked)">Shift 2</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[4], this.checked)">Shift 3</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[5], this.checked)">Shift 4</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[6], this.checked)">Shift 5</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[7], this.checked)">Shift 6</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[8], this.checked)">Shift 7</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[9], this.checked)">Shift 8</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[10], this.checked)">Shift 9</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[11], this.checked)">Shift 10</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[12], this.checked)">Shift 11</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[13], this.checked)">Shift 12</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[14], this.checked)">Shift 13</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[15], this.checked)">Shift 14</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[16], this.checked)">Shift 15</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[17], this.checked)">Shift 16</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[18], this.checked)">Shift 17</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[19], this.checked)">Shift 18</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[20], this.checked)">Shift 19</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[21], this.checked)">Shift 20</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[22], this.checked)">Shift 21</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[23], this.checked)">Shift 22</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[24], this.checked)">Shift 23</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[25], this.checked)">Shift 24</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[26], this.checked)">Shift 25</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[27], this.checked)">Shift 26</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[28], this.checked)">Shift 27</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[29], this.checked)">Shift 28</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[30], this.checked)">Shift 29</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[31], this.checked)">Shift 30</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[32], this.checked)">Shift 31</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[33], this.checked)">Shift 32</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[34], this.checked)">Shift 33</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[35], this.checked)">Shift 34</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[36], this.checked)">Shift 35</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[37], this.checked)">Shift 36</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[38], this.checked)">Shift 37</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[39], this.checked)">Shift 38</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[40], this.checked)">Shift 39</input>
+    </dt>
+    <dt>
+      <input type="checkbox" checked="1" onMouseUp="toggleOverlay(polylines[41], this.checked)">Shift 40</input>
+    </dt>
+  </dl>
+  <input type="button" value="Reset" onclick="reset()">
+</form> 
+</div>
+
+<div style="clear: both">  
+<p>
+ Original taken from the Google Maps API examples
+</div>
+
+
+  </body>
+</html>

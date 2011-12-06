@@ -1,0 +1,35 @@
+<?xml-stylesheet type="text/xsl" href="../../../../Projects/org/omegahat/Docs/XSL/Todo.xsl" ?> 
+<topics xmlns:r="http://www.r-project.org">
+<title>R2GoogleMaps package</title>
+
+<items>
+
+<item>
+For some reason, if we import(XML) in the NAMESPACE
+and add XML to the  Imports in the DESCRIPTION,
+R CMD check fails with  messages of the form
+<pre>
+<Error: package/namespace load failed for 'R2GoogleMaps'
+Call sequence:
+2: stop(gettextf("package/namespace load failed for '%s'", package), 
+       call. = FALSE, domain = NA)
+1: library(package, lib.loc = lib.loc, character.only = TRUE, verbose = FALSE)
+Execution halted
+</pre>
+</item>
+
+<item>
+<r:func>addJavaScript</r:func> function.
+</item>
+
+<item>
+create javascript function
+given a name, code and parameters.
+</item>
+
+<item>
+Specify the map object and the controls.
+</item>
+</items>
+
+</topics>

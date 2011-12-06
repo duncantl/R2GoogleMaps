@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<link rel="stylesheet" href="../OmegaTech.css"/>
+<title>@PKG_NAME@</title>
+</head>
+
+
+<body>
+<h1>@PKG_NAME@</h1>
+<p align=right><a href="@TAR_FILE@">@TAR_FILE@</a> (@DATE@)</p>
+
+<p>
+This package provides a mechanism to generate JavaScript code
+from R that displays data using Google Maps.
+It is different from RgoogleMaps which allows one to import
+a static Google Map into R for use in, e.g., displaying the image
+on a graphics device.
+</p>
+<p>
+This is an early prototype of the package and interface
+that provides the "obvious" facilities such as
+<ul>
+  <li> polylines,
+  <li> polygons,  and
+  <li> markers
+  <li> and allows one to specify controls and the type of map.
+</ul>
+It provides facilities for creating JavaScript code and
+mapping latitude and longitude pairs to JavaScript.
+It allows one to manipulate HTML documents for
+displaying Google Maps by leveraging the XML package.
+It uses <a href="../RJSONIO">RJSONIO</a> to serialize options as associative
+arrays in JavaScript
+</p>
+
+<h3>Dependencies</h3>
+<p>
+The package requires very recent versions of
+the <a href="../RSXML">XML</a> package and <a href="../RJSONIO">RJSONIO</a>.
+(The XML version (2.6-0) is used to save the HTML appropriately.)
+
+
+</p>
+
+<h3>Documentation</h3>
+
+<dl>
+  <dt>
+  <li> See a case-study <a href="sampleDocs/sfcabs.html">tutorial</a>.
+  <dd>
+</dl>
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Mon Aug  3 13:53:27 PDT 2009
+<!-- hhmts end -->
+</body> </html>

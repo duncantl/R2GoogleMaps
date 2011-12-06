@@ -1,0 +1,19 @@
+
+<article>
+
+<para>
+Generate a HTML  document.
+</para>
+<para>
+Add JavaScript code to the document
+</para>
+<para>
+Potentially, define  R classes that
+represent a Google Map
+</para>
+<para>
+Create a graphics device that has lat, long
+coordinates and allows for 
+(poly)line and polygons to be drawn.
+</para>
+</article>

@@ -1,0 +1,21 @@
+import(methods)
+#import(XML)
+import(RJSONIO)
+
+export(
+ googleMapsDoc,
+ latLong,
+ gpolyline,
+ gpolygon,
+ addOverlay,
+ gmarker,   
+ markerData       
+)
+
+#exportMethods(coerce)
+
+
+# There are more functions for developers creating higher-level functions
+# for different type of GoogleMaps content.
+# e.g. addJavascript, getStyle, toCSS
+

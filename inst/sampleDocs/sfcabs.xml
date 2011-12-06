@@ -1,0 +1,452 @@
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:omg="http://www.omegahat.org"
+         xmlns:js="http://www.ecma-international.org/publications/standards/Ecma-262.htm">
+
+<title>Display San Francisco Cab Data</title>
+<section>
+<title>Introduction</title>
+<para>
+This an exploration in using the Google Maps API
+by generating HTML &amp; JavaScript code in R
+that is then displayed in a Web browser.
+We will use the data from <ulink url="http://cabspotting.org"/>.
+(Note we can collect our own in real time.)
+</para>
+<para>
+We'll grow this example incrementally.
+<ol>
+<li>We start by displaying a single cab and showing its path.
+<ulink url="cab1.html"/>
+</li>
+<li>
+Next we add markers on the map that shows where 
+a passenger was picked up and another marker type for
+where a passenger was let off.
+We add HTML content to the marker 
+so that when the viewer clicks on the marker
+it is displayed in a popup window on the map.
+The information gives information about 
+what type of event this was (drop-off or pickup),
+the date and time  of the  event, 
+the passenger number (in sequence) and the total number
+of passengers in this period, and the 
+duration of the ride.
+<ulink url="cab3.html"/>
+</li>
+<li>
+Next we'll break the path into different 
+sub-paths corresponding to separate driver shifts
+or different passengers.
+<ulink url="cab4.html"/>
+</li>
+<li>
+We move then to providing a choice menu
+or a selection list that allows the viewer
+to select which cab(s) to display and then we display those polylines.
+See <ulink url="cab5.html"/> &amp; <ulink url="cabShiftToggle.html"/>
+</li>
+<li>
+We'll use polyline encoding for efficiency and greater control
+of appearance when zooming.
+</li>
+<li>
+We also show how we can keep the data in an XML format and separate from the 
+JavaScript code. The JavaScript reads that at run-time and generates the
+objects. See <ulink url="data.html"/>
+</li>
+</ol>
+</para>
+</section>
+<section>
+<title>A Single Cab</title>
+<para>
+We start with a single cab.
+<r:code>
+f = "new_enyenewl.txt"
+a = read.table(f, header = FALSE, col.names = c("lat", "long", "occupied", "time"),
+                                         colClasses = c("numeric", "numeric", "integer", "numeric"))
+a[[3]] = as.logical(a[[3]])
+class(a[[4]]) = c("POSIXt", "POSIXct")
+</r:code>
+</para>
+<para>
+We'll start by creating the JavaScript code that creates
+the polyline.
+We do this by creating an array of GLatLng objects.
+<r:code>
+tmp = sprintf("new GLatLng(%.4f, %.4f)", a$lat, a$long)
+</r:code>
+<r:code>
+cc = paste("new GPolyline([", paste(tmp, collapse = ",\n\t"), 
+                         "], ",
+                        dQuote("#FF0000"), ",", 2,
+                        ")", sep = "\n")
+</r:code>
+
+Now we have to center the map at the "center" of the path.
+<r:code>
+zoom = 11
+sprintf("map.setCenter(new GLatLng(%.4f, %.4f), %d)", 
+            mean(range(a$lat)), mean(range(a$long)), zoom)
+</r:code>
+</para>
+</section>
+
+<section>
+<title>Adding markers</title>
+<para>
+The idea is that we will determine
+where the cab picked up or dropped off a passenger.
+Let's reverse the order of the rows in our cab data frame.
+This will allow us to think of time as increasing with row.
+<r:code>
+b = a[nrow(a):1,]
+</r:code>
+
+Now we find the rows when the occupied status changes
+<r:code>
+w = which(diff(b$occ) != 0)
+</r:code>
+If we add 1 to this, we have the corresponding row in <r:var>b</r:var>.
+So now we have the location for the marker.
+We also need to know if each of these is occupied or unoccupied.
+This depends on the starting value.
+<r:code>
+labels = c("occupied", "unoccupied")
+if(b[1, "occupied"])
+ labels = rev(labels)
+status = factor(labels[rep(c(1,2), length = length(w))],  levels = labels)
+</r:code>
+</para>
+<para>
+So now we can add the markers
+<r:code>
+tmp = sprintf("\tmap.addOverlay(new GMarker(new GLatLng(%.4f, %.4f)));", b[w, "lat"], b[w, "long"])
+paste(tmp, collapse = "\n")
+</r:code>
+</para>
+<para>
+The above produces markers for each event.
+But we want to color code them as being a drop-off
+or pick-up. Also, we want to allow the viewer to click
+on the marker and get information about the particular event.
+</para>
+</section>
+
+<section>
+<title>Markers with Event Information</title>
+<r:code><![CDATA[
+icons = c("occupied" = "http://gmaps-samples.googlecode.com/svn/trunk/markers/red/blank.png",
+          "unoccupied" = "http://gmaps-samples.googlecode.com/svn/trunk/markers/green/blank.png")
+
+html = sprintf("Cab: <a href='http://cabspotting.org/cab.xml.php?cab=%s&m=45'>%s</a><br/>Passenger %d (of %d)<br/><b>%s @ %s</b>",
+                 names(cabCounts)[1], names(cabCounts)[1],
+                 seq(along = w),
+                 length(w),
+                 c("occupied" = "drop-off", unoccupied = "pick-up")[as.character(status)],
+                 as.character(a$time)[w + 1]                
+                )
+
+tmp = sprintf('\tmap.addOverlay(createMarker(new GLatLng(%.4f, %.4f), "%s", "%s"));', 
+                   b[w, "lat"], b[w, "long"], html, icons[as.character(status)])
+cat(paste(tmp, collapse = "\n"))
+]]></r:code>
+
+</section>
+<section>
+<title>Using XML</title>
+<para>
+A different way to present the markers (without color)
+for the location of the drop-offs and pickups
+is to use generic JavaScript code and specify
+the marker location separately using an XML
+document.
+Building on what we have from the previous section
+(i.e. the row number in <r:var>b</r:var> for the
+pick-up and drop-off events)
+<r:code>
+m = newXMLNode("markers")
+invisible(sapply(w, function(i, p) 
+                      newXMLNode("marker", 
+                                  attrs = c(lat = b[i, "lat"], lng = b[i,"long"]), 
+                                  parent = p),
+                  m))
+saveXML(m, "~/Books/XMLTechnologies/Rpackages/R2GoogleMaps/inst/sampleDocs/markers.xml")
+</r:code>
+Then we can open <ulink url="data.html"/>. This has been partially modified (from the original 
+version downloaded from the Google Map examples) to center
+the map on the region of interest and specify a different data file.
+We would do this programmatically in R with
+<r:code>
+doc = htmlParse("~/Books/XMLTechnologies/Rpackages/R2GoogleMaps/inst/sampleDocs/data.html")
+body = getNodeSet(doc, "//body")[[1]]
+xmlAttrs(body) = c(onload = sprintf("initialize('markers.xml', %.4f, %.4f)", 
+                                      mean(range(b$lat)), mean(range(b$long))))
+</r:code>
+</para>
+</section>
+
+<section>
+<title>By day</title>
+
+<para>
+We can display the path the cab took broken up
+by day/shift.
+We find the shifts by finding the observations in the data
+where there is a gap of an hour or more.
+We can create a new variable which identifies the
+shift number with the following code:
+<r:code>
+i = diff(b$time) > 60^2
+shift = c(0, cumsum(i))
+</r:code>
+Now we can operate on each shift using
+<r:func>by</r:func> and create the code
+that creates the poly lines for that, e.g.
+<r:code>
+colors = substring(rainbow(length(unique(shift))), 1, 7)
+k = by(cbind(b, color = colors[shift + 1]), shift, makePolyline)
+</r:code>
+We want the value of the <r:var>shift</r:var> 
+in each group to select the color.
+</para>
+<para>
+We can define <r:func>makePolyline</r:func> something like
+the following based on what we did for the entire day.
+<r:function>
+makePolyline =
+function(data, var = character())
+{
+  color = as.character(data$color)[1]
+  tmp = sprintf("new GLatLng(%.4f, %.4f)", data$lat, data$long)
+
+  tmp = paste("new GPolyline([", paste(tmp, collapse = ",\n\t"), 
+                                     "], ",
+                                       dQuote(color), ",", 2,
+                        ")", sep = "\n")
+
+  if(length(var))
+    tmp = paste(var, tmp, sep = " = ")
+  sprintf("map.addOverlay(%s);", tmp)
+}
+</r:function>
+</para>
+
+</section>
+<section>
+<title>Selecting Driver Shifts within a Cab or Different Cabs</title>
+<para>
+Here we look at how we can allow the viewer to 
+control what is displayed in the view.
+We'll break a single cab's data into different shifts
+as we did before.
+<r:code>
+d = readCabTrace("/Users/duncan/Data/cabspottingdata/new_ugthfu.txt")
+i = diff(d$time) > 60^2
+d$shift = c(0, cumsum(i))
+d$colors = as.character(substring(rainbow(length(unique(d$shift))), 1, 7))[d$shift + 1]
+</r:code>
+
+Now we generate the code. We assign each GPolyline to an element of a
+JavaScript array which we will call <js:var>polylines</js:var>.
+<r:code>
+k = by(d, d$shift, function(x) makePolyline(x, paste("polylines[", x$shift[1], "]", sep = "")))
+</r:code>
+</para>
+<para>
+We need to add this code to the <js:func>initialize</js:func> and 
+also to define the <js:var>polylines</js:var> variable.
+We write the code in <r:var>k</r:var> to a function
+<js:func>drawPaths</js:func> in a separate file so that we can easily include it in our HTML document.
+We then change the <js:func>initialize</js:func> function to call this, passing it the GMap2 object.
+<r:code>
+cat("function drawPaths(map)", "{", k,  "}", sep = "\n", file = "drawPaths.js")
+</r:code>
+</para>
+<para>
+Now we can add the form and checkboxes to the HTML document.
+We add one for each shift and we have its onMouseUp method
+call the JavaScript function <js:func>toggle</js:func>,
+passing it the relevant overlay, i.e. element of
+<js:var>polylines</js:var> (remembering we use 0-based counting JavaScript),
+and whether to show or hide the overlay.
+<r:code>
+form = newXMLNode("form")
+dl = newXMLNode("dl", parent = form)
+invisible(
+sapply(unique(d$shift),
+        function(i, p)
+          newXMLNode("dt", newXMLNode("input", paste("Shift", i), attrs = c(type = "checkbox", 
+                                        checked = "1", 
+                                        onMouseUp = sprintf("toggleOverlay(polylines[%d], this.checked)", as.integer(i+1)))),
+                      parent = p),
+       dl))
+</r:code>
+We should also add a reset button to the form.
+<r:code>
+newXMLNode("input", attrs = c(type="button", value="Reset", onclick="reset()"), parent = form)
+</r:code>
+</para>
+<para>
+Now we add this to the HTML document along with references to the
+JavaScript files drawPath.js and toggle.js.
+</para>
+<para>
+The result is  <ulink url="cabShiftToggle.html"/>
+</para>
+
+</section>
+<section>
+<title>High-level Functions</title>
+<para>
+In the examples above, we have glossed over how we add the
+content to the  HTML documents.
+We now work through some of these examples using high-level functions
+in R that generate the code from R data objects and construct the 
+HTML file and its contents to display the map.
+</para>
+
+<section>
+<title>The Simple Polyline</title>
+<para>
+<r:code>
+center = c(mean(range(b$lat)), mean(range(b$long)))
+code = addOverlay(gpolyline(b))
+d = googleMapsDoc(code, center, zoom = 11, dim = c(750, 700), file = "simplePolyline.html")
+</r:code>
+</para>
+
+</section>
+<section>
+<title>Markers</title>
+<r:code>
+w = which(diff(b$occ) != 0)
+labels = c("occupied", "unoccupied")
+if(b[1, "occupied"])
+ labels = rev(labels)
+status = factor(labels[rep(c(1,2), length = length(w))],  levels = labels)
+</r:code>
+<r:code>
+code = gmarker(b[w, "lat"], b[w, "long"], addOverlay = TRUE)
+d = googleMapsDoc(code, center, zoom = 11, dim = c(750, 700), file = "simplePolyline.html")
+</r:code>
+
+</section>
+<section>
+<title>Markers with Information</title>
+<para>
+The <omg:pkg>R2GoogleMaps</omg:pkg> package doesn't do much to help here with generating
+the code as it is quite customized, using a a different
+JavaScript function to create the marker that has icons and such.
+The package does help in creating the document and bringing 
+in the necessary JavaScript code.
+</para>
+<para>
+As we did above, we need to compute some variables that go into the content,
+specifically the HTML for each marker.
+<r:code><![CDATA[
+w = which(diff(b$occ) != 0)
+
+icons = c("occupied" = "http://gmaps-samples.googlecode.com/svn/trunk/markers/red/blank.png",
+          "unoccupied" = "http://gmaps-samples.googlecode.com/svn/trunk/markers/green/blank.png")
+
+labels = c("occupied", "unoccupied")
+if(b[1, "occupied"])
+ labels = rev(labels)
+status = factor(labels[rep(c(1,2), length = length(w))],  levels = labels)
+
+html = sprintf("Cab: <a href='http://cabspotting.org/cab.xml.php?cab=%s&m=45'>%s</a><br/>Passenger %d (of %d)<br/><b>%s @ %s</b>",
+                 "oilrag", "oilrag",
+                 seq(along = w),
+                 length(w),
+                 c("occupied" = "drop-off", unoccupied = "pick-up")[as.character(status)],
+                 as.character(b$time)[w + 1]                
+                )
+]]></r:code>
+
+Now we  can create the HTML document and the map
+and specify the extra JavaScript file to be included.
+<r:code>
+code = sprintf('\tmap.addOverlay(createMarker(new GLatLng(%.4f, %.4f), "%s", "%s"));', 
+                   b[w, "lat"], b[w, "long"], html, icons[as.character(status)])
+d = googleMapsDoc(code, c(mean(range(b$lat)), mean(range(b$lon))),
+                   zoom = 11, file = "infoMarkers.html", scripts = "../javascript/marker.js")
+</r:code>
+</para>
+</section>
+
+<section>
+<title>Using XML</title>
+<para>
+The function <r:func>markerData</r:func> creates data in the format we want
+for specifying marker locations via XML.
+We use this as
+<r:code>
+markerData(b[w,], file = "markers.xml")
+</r:code>
+Now we have to use this data in an HTML document that creates a map
+and displays the markers.  We need to include the genericMarkerData.js
+script in our file as that knows how to read our the XML data.  It
+provides an <js:func>initialize</js:func> function that will create
+the map and the markers, and it also provides a separate function
+(<js:func>makeMarkers</js:func>) that we can call to create the
+markers ourselves.
+<r:code>
+googleMapsDoc('makeMarkers("markers.xml", map);', 
+               c(mean(range(b$lat)), mean(range(b$lon))),
+              zoom = 12,
+              file = "mydata.html", scripts = "../javascript/genericMarkerData.js")
+</r:code>
+</para>
+<para>
+If we wanted to use the initialize function from genericMarkerData.js
+and let it add the controls, specify the zoom, etc. we can.
+Instead of providing our own code to <r:func>googleMapsDoc</r:func>,
+we want to change the onload code that is evaluated when the document is loaded.
+We want to avoid building our own initialize function, so we specify
+an empty string for the code we provide and make it an <r:class>AsIs</r:class>
+object to say "treat this as the entire function".
+So our call is
+<r:code>
+googleMapsDoc(I(''), 
+              onload = sprintf('initialize("markers.xml", %.4f, %.4f)', mean(range(b$lat)), mean(range(b$lon))),
+              zoom = 12, 
+              file = "mydata1.html", 
+              scripts = "../javascript/genericMarkerData.js"
+            )
+</r:code>
+and we get the same result, except we have different controls and zoom levels
+that are hard-coded into the <js:func>initialize</js:func>
+function in genericMarkerData.js.
+We could of course make that function richer and have it accept optional
+parameters.
+</para>
+</section>
+
+<section>
+<title>By day</title>
+<para>
+</para>
+</section>
+</section>
+
+<section>
+<title>Real-time Data</title>
+<para>
+The cabspotting site has a real time feed and API.
+We can find out which  cabs have data available within
+the last m minutes.
+
+<r:code><![CDATA[
+http://cabspotting.org/cab.xml.php?cab=ugthfu&m=480
+]]></r:code>
+</para>
+<para>
+The following functions perform the download and format the data.
+<r:function>
+<xi:include href="cabspotting.R" parse="text"/>
+</r:function>
+</para>
+</section>
+</article>
